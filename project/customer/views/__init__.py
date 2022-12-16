@@ -1,0 +1,29 @@
+from .extended_jwt_view import MyTokenObtainPairView
+
+from .get_admins import get_admins
+from .get_order import get_order
+from .register_self_customer import register_self_customer
+from .search_customers import search_customers
+from .get_new_order_count import get_new_order_count
+from .get_new_request_count import get_new_request_count
+
+from .admin__get_ucoin_requests import admin__get_ucoin_requests
+from .admin__change_ucoin_request_state import admin__change_ucoin_request_state
+
+from .admin__get_orders import admin__get_orders
+from .admin__change_order_state import admin__change_order_state
+from .admin__cancel_order import admin__cancel_order
+
+from .admin__search_customers import admin__search_customers
+from .admin__create_customer import admin__create_customer
+from .admin__change_customer_balance import admin__change_customer_balance
+from .admin__change_customer_permission import admin__change_customer_permission
+from .admin__delete_customer import admin__delete_customer
+
+from .customer__create_ucoin_request import customer__create_ucoin_request
+from .customer__get_ucoin_requests import customer__get_ucoin_requests
+
+from .customer__create_order import customer__create_order
+from .customer__get_orders import customer__get_orders
+
+from .test_authorization_permission import test_permission
