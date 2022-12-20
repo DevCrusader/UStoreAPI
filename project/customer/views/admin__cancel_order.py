@@ -25,8 +25,6 @@ def admin__cancel_order(request, pk):
 
     order = Order.objects.filter(id=pk).first()
 
-    print(order)
-
     # Проверяет, что искомы заказ существует
     if order is None:
         return Response({"error": "Desired order does not exists."}, status=400)
@@ -39,17 +37,15 @@ def admin__cancel_order(request, pk):
     if len(str(comment)) > 200:
         return Response({"detail": "Comment field can not have more than 200 characters."}, status=400)
 
-    print(comment)
-
     # Если заказ был оплачечн юкойнами то возвращает средства юзеру
     if order.payment_method == "ucoins":
-        print("Here")
         total_count = sum([item["count"] * item["price"] for item in order.products()])
 
         serializer = PureBalanceReplenishmentSerializer(data={
             "customer": order.customer.id,
             "from_customer": request.user.customer.id,
-            "comment": f"Отмена заказа #{order.id}. {comment}",
+            "header": f"Отмена заказа #{order.id}.",
+            "comment": comment,
             "count": total_count
         })
 

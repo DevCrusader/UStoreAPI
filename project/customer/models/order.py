@@ -139,3 +139,21 @@ class Order(models.Model):
         Using the JSONParser from rest_framework.
         """
         return JSONParser().parse(BytesIO(self.product_list))
+
+    def total_count(self):
+        return sum(map(
+            lambda product: product["price"] * product["count"],
+            self.products()
+        ))
+
+    def products_str(self):
+        return ", ".join([
+            " ".join(
+                [
+                    product['name'], product['type'],
+                    product['item_size']
+                    if product['item_size'] is not None else '',
+                    str(product['count']), 'шт.'
+                ]
+            ) for product in self.products()
+        ])

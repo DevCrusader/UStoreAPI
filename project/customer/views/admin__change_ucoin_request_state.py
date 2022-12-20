@@ -57,8 +57,9 @@ def admin__change_ucoin_request_state(request, pk):
         serializer = PureBalanceReplenishmentSerializer(data={
             "customer": _request.customer.id,
             "from_customer": request.user.customer.id,
+            "header": f"Принят запрос #{_request.id}.",
             "count": count,
-            "comment": f"Принят запрос #{_request.id}, {_request.header}"
+            "comment": admin_comment
         })
 
         if not serializer.is_valid():

@@ -5,5 +5,8 @@ from rest_framework.response import Response
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def test_permission(request):
-    return Response({"message": "AIYSGDUAGSkjn!KJB@uy!@I#U"}, status=200)
+def customer__get_balance(request):
+    return Response(
+        request.user.customer.balance,
+        status=200
+    )

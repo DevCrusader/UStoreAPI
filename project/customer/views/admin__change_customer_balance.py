@@ -24,7 +24,8 @@ def admin__change_customer_balance(request, pk):
         return Response({"detail": "Not enough rights."}, status=403)
 
     if pk is None or not pk.isdigit():
-        return Response({"detail": "Customer id must be integer field."}, status=400)
+        return Response({"detail": "Customer id must be integer field."},
+                        status=400)
 
     new_balance = request.data.get("newBalance")
     comment = request.data.get("comment")
@@ -48,7 +49,8 @@ def admin__change_customer_balance(request, pk):
     customer = Customer.objects.filter(id=pk).first()
 
     if not customer:
-        return Response({"detail": "Desired customer does not exist."}, status=400)
+        return Response({"detail": "Desired customer does not exist."},
+                        status=400)
 
     if new_balance == customer.balance:
         return Response({
@@ -61,6 +63,10 @@ def admin__change_customer_balance(request, pk):
     data = {
         "customer": customer.id,
         "from_customer": request.user.customer.id,
+        "header":
+            f"Пополнение от администратора {request.user.customer.name()}"
+            if new_balance > customer.balance else
+            f"Списание от администратора {request.user.customer.name()}",
         "comment": comment,
         "count": abs(customer.balance - new_balance)
     }
@@ -73,7 +79,8 @@ def admin__change_customer_balance(request, pk):
     if serializer.is_valid():
         data = serializer.save()
         # Return updated customer object
-        return Response(CustomerExtendedSerializer(data.customer, many=False).data)
+        return Response(
+            CustomerExtendedSerializer(data.customer, many=False).data)
 
     # Return 500 in case serializer with errors
     return Response(serializer.errors, status=500)

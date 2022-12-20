@@ -26,8 +26,11 @@ class BalanceReplenishment(models.Model):
                                       help_text="Покупатель, который начислил юкойны на баланс.",
                                       related_name="outgoing_balance_replenishments_set")
     count = models.PositiveIntegerField(null=False)
-    comment = models.TextField(max_length=250, null=False, blank=True, default="")
+    header = models.CharField(max_length=100, null=False, blank=False, default="Пополнение")
+    comment = models.CharField(max_length=250, null=False, blank=True, default="")
     date = models.DateTimeField(auto_now_add=True)
+
+    type = "replenishment"
 
     class Meta:
         verbose_name = "Пополнение баланса"

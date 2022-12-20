@@ -15,6 +15,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
 
         token['permission'] = user.customer.admin_permission
-        token['balance'] = user.customer.balance
+        # token['balance'] = user.customer.balance
+        token['name'] = user.customer.name()
 
         return token

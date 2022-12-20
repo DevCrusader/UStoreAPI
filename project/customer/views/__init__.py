@@ -21,9 +21,16 @@ from .admin__change_customer_permission import admin__change_customer_permission
 from .admin__delete_customer import admin__delete_customer
 
 from .customer__create_ucoin_request import customer__create_ucoin_request
-from .customer__get_ucoin_requests import customer__get_ucoin_requests
-
 from .customer__create_order import customer__create_order
-from .customer__get_orders import customer__get_orders
 
-from .test_authorization_permission import test_permission
+from .customer__create_gift import customer__create_gift
+from .customer__get_incoming_gifts import customer__get_incoming_gifts
+from .customer__accept_gift import customer__accept_gift
+
+from .customer__history_balance import customer__history_balance
+from .customer__history_orders import customer__history_orders
+from .customer__history_requests import customer__history_requests
+from .customer__history_gifts import customer__history_gifts
+
+from .customer__get_balance import customer__get_balance
+
