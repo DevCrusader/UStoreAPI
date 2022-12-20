@@ -7,15 +7,19 @@ from customer.models import \
     BalanceReplenishment, \
     BalanceWriteOff, \
     Customer, \
-    SecretWord
+    SecretWord, \
+    Gift
 
 
 # Contains pure serializers.
-
-
 class PureUcoinRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = UcoinRequest
+        fields = "__all__"
+
+class PureGiftSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gift
         fields = "__all__"
 
 

@@ -118,6 +118,13 @@ class Customer(models.Model):
             } for c in self.cart_set.all()
         ]
 
+    def order_history(self):
+        return [
+            {
+
+            } for order in self.order_set.all()
+        ]
+
     def __str__(self):
         return f"Покупатель #{self.id} {self.name()}"
     

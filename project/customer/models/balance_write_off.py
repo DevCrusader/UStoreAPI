@@ -26,8 +26,11 @@ class BalanceWriteOff(models.Model):
                                       help_text="Покупатель, который списал юкойны с баланса.",
                                       related_name="outgoing_balance_write_offs_set")
     count = models.PositiveIntegerField(default=0, null=False)
-    comment = models.TextField(max_length=250, null=False, blank=True, default="")
+    header = models.CharField(max_length=100, null=False, blank=False, default="Списание")
+    comment = models.CharField(max_length=250, null=False, blank=True, default="")
     date = models.DateTimeField(auto_now_add=True)
+
+    type = "write_off"
 
     class Meta:
         verbose_name = "Списание баланса"
@@ -35,7 +38,7 @@ class BalanceWriteOff(models.Model):
         ordering = ["-date"]
 
     def __str__(self):
-        return f"Пополнение счёта пользователя {self.customer.name()} на {self.count}"
+        return f"Списание со счёта пользователя {self.customer.name()} на {self.count}"
 
     def customer_name(self):
         return self.customer.name()

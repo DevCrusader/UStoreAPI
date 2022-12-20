@@ -59,7 +59,8 @@ def customer__create_order(request):
             serializer = PureBalanceWriteOffSerializer(data={
                 "customer": request.user.customer.id,
                 "from_customer": request.user.customer.id,
-                "comment": f"Покупка мерча, заказ #{order.id}",
+                "header": f"Покупка мерча, заказ #{order.id}",
+                "comment": order.products_str(),
                 "count": total_count
             })
 

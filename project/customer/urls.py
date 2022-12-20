@@ -23,11 +23,19 @@ from .views import \
     admin__delete_customer
 
 from .views import \
-    customer__get_ucoin_requests, \
+    customer__get_balance, \
     customer__create_ucoin_request, \
-    customer__get_orders, \
     customer__create_order, \
-    test_permission
+    customer__create_gift, \
+    customer__get_incoming_gifts, \
+    customer__accept_gift
+
+from .views import \
+    customer__history_balance, \
+    customer__history_orders, \
+    customer__history_requests, \
+    customer__history_gifts
+
 
 urlpatterns = [
     # Paths for authorized admins
@@ -47,11 +55,20 @@ urlpatterns = [
     path("admin/customer/<str:pk>/delete/", admin__delete_customer),
 
     # Paths for authorized customers
+    path("customer/balance/", customer__get_balance),
+
     path("customer/requests/create/", customer__create_ucoin_request),
-    path("customer/requests/", customer__get_ucoin_requests),
 
     path("customer/orders/create/", customer__create_order),
-    path("customer/orders/", customer__get_orders),
+
+    path("customer/gifts/create/", customer__create_gift),
+    path("customer/gifts/<str:pk>/", customer__accept_gift),
+    path("customer/gifts/", customer__get_incoming_gifts),
+
+    path("customer/history/balance/", customer__history_balance),
+    path("customer/history/orders/", customer__history_orders),
+    path("customer/history/requests/", customer__history_requests),
+    path("customer/history/gifts/", customer__history_gifts),
 
     # Paths for any user
     path("token/refresh/", TokenRefreshView.as_view()),
@@ -63,6 +80,4 @@ urlpatterns = [
     path("search-customers/", search_customers),
     path("new-orders/", get_new_order_count),
     path("new-requests/", get_new_request_count),
-
-    path("test/", test_permission)
 ]
