@@ -2,6 +2,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from django.utils.translation import gettext_lazy as _
+
 from customer.models import Customer
 from customer.serializers import \
     PureBalanceReplenishmentSerializer, \
@@ -21,10 +23,10 @@ def admin__change_customer_balance(request, pk):
     Available only for customers with admin permission.
     """
     if not request.user.customer.admin_permission:
-        return Response({"detail": "Not enough rights."}, status=403)
+        return Response({"detail": _("Not enough rights.")}, status=403)
 
     if pk is None or not pk.isdigit():
-        return Response({"detail": "Customer id must be integer field."},
+        return Response({"detail": _("Customer id must be an integer field.")},
                         status=400)
 
     new_balance = request.data.get("newBalance")
@@ -32,19 +34,21 @@ def admin__change_customer_balance(request, pk):
 
     # NewBalance field validation
     if new_balance is None:
-        return Response(
-            {"detail": "NewBalance parameter is missing or is not an integer."},
-            status=400
-        )
-
-    if type(new_balance) is not int:
         return Response({
-            "detail": "NewBalance parameter is not integer."
+            "detail": _("NewBalance parameter is missing.")
+        }, status=400)
+
+    try:
+        new_balance += 0.0
+    except TypeError:
+        return Response({
+            "detail": _(f"The passed newBalance must be an integer "
+                        f"or a float, get {str(type(new_balance))} instead.")
         }, status=400)
 
     # Comment field validation
     if comment is None or not comment:
-        return Response({"detail": "Invalid field: comment."}, status=400)
+        return Response({"detail": "The passed comment is missing or invalid."}, status=400)
 
     customer = Customer.objects.filter(id=pk).first()
 

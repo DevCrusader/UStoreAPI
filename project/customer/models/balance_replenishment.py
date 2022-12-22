@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from .customer import Customer
+from .customer import Customer, validate_balance
 
 
 class BalanceReplenishment(models.Model):
@@ -25,7 +26,16 @@ class BalanceReplenishment(models.Model):
     from_customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True,
                                       help_text="Покупатель, который начислил юкойны на баланс.",
                                       related_name="outgoing_balance_replenishments_set")
-    count = models.PositiveIntegerField(null=False)
+    # count = models.PositiveIntegerField(default=0, null=False)
+    count = models.FloatField(
+        default=0.0,
+        validators=[
+            validate_balance,
+            MaxValueValidator(9999.9),
+            MinValueValidator(0.0)
+        ],
+        null=False
+    )
     header = models.CharField(max_length=100, null=False, blank=False, default="Пополнение")
     comment = models.CharField(max_length=250, null=False, blank=True, default="")
     date = models.DateTimeField(auto_now_add=True)

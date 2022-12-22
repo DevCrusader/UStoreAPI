@@ -1,8 +1,8 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import CheckConstraint
-from rest_framework.exceptions import ValidationError
 
-from .customer import Customer
+from .customer import Customer, validate_balance
 
 
 class UcoinRequest(models.Model):
@@ -40,7 +40,17 @@ class UcoinRequest(models.Model):
     header = models.CharField(max_length=100, null=False, blank=False)
     comment = models.CharField(max_length=250, null=False, blank=False)
 
-    count = models.PositiveIntegerField(default=0)
+    # count = models.PositiveIntegerField(default=0)
+
+    count = models.FloatField(
+        default=0.0,
+        validators=[
+            validate_balance,
+            MaxValueValidator(9999.9),
+            MinValueValidator(0.0)
+        ],
+        null=False
+    )
     admin_comment = models.CharField(
         max_length=250, null=False, blank=True, default=""
     )
@@ -80,9 +90,9 @@ class UcoinRequest(models.Model):
             ),
             CheckConstraint(
                 check=models.Q(
-                    models.Q(state="Accepted") & models.Q(count__gt=0)
+                    models.Q(state="Accepted") & models.Q(count__gt=0.0)
                 ) | models.Q(
-                    ~models.Q(state="Accepted") & models.Q(count=0)
+                    ~models.Q(state="Accepted") & models.Q(count=0.0)
                 ),
                 name="count_is_not_zero_if_state_is_accepted"
             )
@@ -91,7 +101,7 @@ class UcoinRequest(models.Model):
     def change_state(
             self, new_state: str,
             admin_comment: str | None,
-            count: int | None):
+            count: float | None):
         """
         Changes state of the request.
 
@@ -127,8 +137,7 @@ class UcoinRequest(models.Model):
                     "string and its can not exceed 250 characters.", \
                     False
 
-            print(type(count), count)
-            if type(count) is not int:
+            if type(count) is not float:
                 return False, \
                     "In case the state change to 'Accepted' " \
                     "count field must be a positive integer.", \
@@ -144,7 +153,6 @@ class UcoinRequest(models.Model):
             self.admin_comment = admin_comment
             self.count = count
         elif new_state == self.StateChoice.rejected:
-            print(type(admin_comment), admin_comment)
             if type(admin_comment) is not str:
                 return False, \
                     "In case the state changes to 'Rejected' the " \
@@ -159,10 +167,10 @@ class UcoinRequest(models.Model):
 
             self.state = new_state
             self.admin_comment = admin_comment
-            self.count = 0
+            self.count = 0.0
         else:
             return False, \
-                "The passed new state is invalid. "\
+                "The passed new state is invalid. " \
                 "It can take values: 'Sent', 'Accepted' ,'Rejected'", \
                 False
 

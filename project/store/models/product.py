@@ -25,7 +25,7 @@ class Product(models.Model):
                     datetime field, contains information about the
                     last day of product editing.
     """
-    collection = models.ForeignKey(Collection, on_delete=models.SET_NULL, null=True)
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=50, null=False, blank=False)
     price = models.PositiveSmallIntegerField(default=100, null=False, blank=False)
     description = models.TextField(max_length=250, null=False, blank=True)
