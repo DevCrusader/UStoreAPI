@@ -19,9 +19,6 @@ def customer__history_balance(request):
     bwo_list = request.user.customer.incoming_balance_write_offs_set.all() \
         if state == "Any" or state == "Write_offs" else []
 
-    print(br_list)
-    print(bwo_list)
-
     changes = paginator_imitation(
         sorted(
             chain(br_list, bwo_list),

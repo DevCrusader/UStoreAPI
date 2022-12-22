@@ -1,7 +1,10 @@
+import os
 from sys import platform
 
 from django.db import models
 from django.db.models import UniqueConstraint
+
+from django.dispatch import receiver
 
 from .product_item import ProductItem
 
@@ -57,3 +60,35 @@ class ProductPhoto(models.Model):
 
     def __str__(self):
         return f"{self.product_item.product.name} {self.product_item.type} - {'главное ' if self.preview else ''}фото"
+
+
+@receiver(models.signals.post_delete, sender=ProductPhoto)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem when corresponding
+    'ProductPhoto' object is deleted
+    """
+    if instance.photo:
+        if os.path.isfile(instance.photo.path):
+            os.remove(instance.photo.path)
+
+
+@receiver(models.signals.pre_save, sender=ProductPhoto)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = ProductPhoto.objects.get(pk=instance.pk).photo
+    except ProductPhoto.DoesNotExist:
+        return False
+
+    new_file = instance.photo
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)

@@ -108,7 +108,7 @@ class Order(models.Model):
             return
 
         if state_ == self.OrderStateChoice.canceled:
-            raise ValidationError(
+            raise ValueError(
                 "To set cancelled state use cancel() method."
             )
 
@@ -119,7 +119,7 @@ class Order(models.Model):
 
     def cancel(self, reason: str):
         if reason is None or len(reason) == 0:
-            raise ValidationError("Reason can not be empty.")
+            raise ValueError("Reason can not be empty.")
         self.state = self.OrderStateChoice.canceled
         self.cancellation_reason = reason
 

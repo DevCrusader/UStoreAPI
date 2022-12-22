@@ -21,8 +21,8 @@ def admin__create_customer(request):
         balance -> the customer's balance
         permission -> the customer's permission
     Created new user with:
-        username: [last_name]_[first_name]_[patronymic]
-        password: [last_name]_[first_name]_[patronymic]
+        username: [last_name] [first_name] [patronymic]
+        password: [last_name] [first_name] [patronymic]
 
     Available only for customers with admin permission.
     """
@@ -61,11 +61,11 @@ def admin__create_customer(request):
                       "If you still want to register, try to change some param."
         }, status=400)
 
-    balance = request.data.get('balance')
+    balance = request.data.get('balance', 0.0)
     permission = request.data.get('permission')
 
     # Create User Serializer
-    username = "_".join([last_name, first_name, patronymic])
+    username = " ".join([last_name, first_name, patronymic])
 
     user_serializer = PureUserSerializer(data={
         'username': username,

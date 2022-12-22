@@ -1,3 +1,5 @@
+from django.forms.models import model_to_dict
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -5,7 +7,8 @@ from rest_framework.response import Response
 from customer.models import UcoinRequest
 from customer.serializers import \
     UcoinRequestWithCustomerNameSerializer, \
-    PureBalanceReplenishmentSerializer
+    PureBalanceReplenishmentSerializer, \
+    PureUcoinRequestSerializer
 
 
 @api_view(["POST"])
@@ -40,34 +43,52 @@ def admin__change_ucoin_request_state(request, pk):
             status=400
         )
 
+    if _request.state != UcoinRequest.StateChoice.sent:
+        return Response({
+            "detail": "You cannot change a request that "
+                      "has already been accepted or rejected."
+        }, status=400)
+
     new_state = request.data.get("newState")
     admin_comment = request.data.get("adminComment")
-    count = request.data.get("count", 0)
+    count = request.data.get("count", 0.0)
 
     # Change state of the request
-    success, error, need_to_replenish = \
-        _request.change_state(new_state, admin_comment, count)
+    # success, error, need_to_replenish = \
+    #     _request.change_state(new_state, admin_comment, count)
 
-    # Returns 400 with err in case of change validation error
-    if not success:
-        return Response({"detail": error}, status=400)
+    request_serializer = PureUcoinRequestSerializer(data={
+        **model_to_dict(_request, fields=["id", "customer", "header", "comment", "created_date", "updated_date"]),
+        "count": count,
+        "state": new_state,
+        "admin_comment": admin_comment
+    })
 
-    # If changes return True, then create BalanceReplenishment
-    if need_to_replenish:
-        serializer = PureBalanceReplenishmentSerializer(data={
-            "customer": _request.customer.id,
-            "from_customer": request.user.customer.id,
-            "header": f"Принят запрос #{_request.id}.",
-            "count": count,
-            "comment": admin_comment
-        })
+    if request_serializer.is_valid():
+        _saved_request = request_serializer.update(
+            _request,
+            {**request_serializer.data, "customer": _request.customer}
+        )
 
-        if not serializer.is_valid():
-            # Return 500 in case of serializer error
-            return Response(serializer.errors, status=500)
+        # If changes return True, then create BalanceReplenishment
+        if _saved_request.state == UcoinRequest.StateChoice.accepted:
+            serializer = PureBalanceReplenishmentSerializer(data={
+                "customer": _request.customer.id,
+                "from_customer": request.user.customer.id,
+                "header": f"Принят запрос #{_request.id}.",
+                "count": count,
+                "comment": admin_comment
+            })
 
-        serializer.save()
+            if not serializer.is_valid():
+                # Return 500 in case of serializer error
+                return Response(serializer.errors, status=500)
 
-    return Response(
-        UcoinRequestWithCustomerNameSerializer(_request, many=False).data
-    )
+            serializer.save()
+
+        return Response(
+            UcoinRequestWithCustomerNameSerializer(
+                _saved_request, many=False
+            ).data)
+
+    return Response(request_serializer.errors, status=400)

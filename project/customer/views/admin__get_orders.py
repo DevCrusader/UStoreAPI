@@ -50,9 +50,9 @@ def admin__get_orders(request):
         }, status=400)
     else:
         result = paginator_imitation(
-            Order.objects.
-            filter(filter_query).
-            order_by(f"{'-' if ordering == 'desc' else ''}created_date"),
+            Order.objects
+            .filter(filter_query)
+            .order_by(f"{'-' if ordering == 'desc' else ''}created_date"),
             request.GET.get("page", 1), request.GET.get("per-page", 10)
         )
 
